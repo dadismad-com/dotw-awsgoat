@@ -2,6 +2,9 @@
 
 include 'config.inc';
 
+$attackDemoBase = '';
+$attackDemoPage = 'login';
+
 session_start();
 
 error_reporting(0);
@@ -92,8 +95,8 @@ if (isset($_POST['submit'])) {
 		
 	</div>
 
-	
-	
+	<?php include 'attack-demo.php'; ?>
+
 </body>
 
 </html>

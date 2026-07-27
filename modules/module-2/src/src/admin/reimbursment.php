@@ -1,6 +1,10 @@
 <?php
 
 include_once '../config.inc';
+
+$attackDemoBase = '../';
+$attackDemoPage = 'admin-reimbursment';
+
 session_start();
 
 if (!isset($_SESSION['username'])) {
@@ -104,7 +108,7 @@ if (isset($_POST['submit'])) {
     }
 
 
-    header('Location: reimbursment.php');
+    header('Location: reimbursment.php' . (isset($_POST['attack_demo']) ? '?demo=upload_done' : ''));
     exit;
 }
 
@@ -458,6 +462,8 @@ if (isset($_POST['submit'])) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/ums/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+    <?php include '../attack-demo.php'; ?>
 </body>
 
 </html>
