@@ -22,7 +22,7 @@
             "initProcessEnabled": true
         },
         "cpu": 0,
-        "image": "public.ecr.aws/p3q0v3y2/aws-goat-m2:latest",
+        "image": "408704473483.dkr.ecr.us-east-1.amazonaws.com/aws-goat-m2:latest",
         "name": "aws-goat-m2",
         "mountPoints": [
             {
