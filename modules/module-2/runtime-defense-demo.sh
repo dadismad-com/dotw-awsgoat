@@ -4,8 +4,8 @@
 #
 # Infra (not managed by this repo's Terraform, provisioned separately for
 # this demo):
-#   Instance:    i-046b012c313a18025 (tetragon-runtime-defense-demo)
-#   Public IP:   13.219.93.213           -> http://13.219.93.213/login.php
+#   Instance:    i-0f0d60766006a7901 (tetragon-runtime-defense-demo)
+#   Public IP:   13.220.150.108          -> http://13.220.150.108/login.php
 #   App:         awsgoat-app container, same DB as the main AWSGoat env
 #   Defense:     tetragon container, two enforcing TracingPolicies:
 #                  - block-reverse-shell   (execve of /bin/sh, /bin/bash, /bin/dash)
@@ -14,10 +14,18 @@
 # No SSH key is set up; everything below runs through SSM Session Manager,
 # same as the rest of this project.
 #
+# IMPORTANT: this instance lives inside module-2's own VPC (to reuse its
+# security group for RDS access), so a `terraform destroy` of module-2 WILL
+# take this instance down too (VPC deletion force-terminates everything in
+# it). If you destroy/redeploy module-2 again, re-run the setup steps this
+# script's history documents (new AMI lookup, new SG in the new VPC reusing
+# the fresh ECS security group ID, relaunch, reinstall Tetragon + policies)
+# rather than expecting this instance to survive.
+#
 # ---------------------------------------------------------------------------
 # STAGE SETUP (do this before the talk, not live):
 #   1. Open TWO terminals, in each run:
-#        aws ssm start-session --target i-046b012c313a18025 --region us-east-1
+#        aws ssm start-session --target i-0f0d60766006a7901 --region us-east-1
 #   2. Terminal A ("Blue team" / defender view) - stream live kernel events:
 #        sudo docker exec -it tetragon tetra getevents -o compact
 #      Leave this running and visible throughout the demo.
@@ -59,10 +67,12 @@
 #   sudo docker exec tetragon tetra tracingpolicy list
 #
 # ---------------------------------------------------------------------------
-# TEARDOWN (run from your laptop, after the talk - this instance/SG/IAM role
-# are NOT part of the Terraform state, so `terraform destroy` won't remove them):
-#   aws ec2 terminate-instances --instance-ids i-046b012c313a18025 --region us-east-1
-#   aws ec2 delete-security-group --group-id sg-0397c234081cdc02f --region us-east-1
+# TEARDOWN (run from your laptop, after the talk - this instance/SG are NOT
+# part of the Terraform state, so `terraform destroy` of module-2 will force
+# -terminate the instance via VPC deletion, but the SG and IAM role/profile
+# below can outlive that and should still be cleaned up explicitly):
+#   aws ec2 terminate-instances --instance-ids i-0f0d60766006a7901 --region us-east-1
+#   aws ec2 delete-security-group --group-id sg-004f114c7380a6052 --region us-east-1
 #   aws iam remove-role-from-instance-profile --instance-profile-name tetragon-demo-profile --role-name tetragon-demo-role
 #   aws iam delete-instance-profile --instance-profile-name tetragon-demo-profile
 #   aws iam detach-role-policy --role-name tetragon-demo-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
