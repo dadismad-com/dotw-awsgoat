@@ -4,6 +4,68 @@
   }
 }
 
+.navlinks {
+  z-index: 60;
+}
+
+/* Mobile layout: the desktop design assumes a permanently-visible 300px
+   sidebar, so every content wrapper below is hard-coded with a matching
+   margin-left. Below the sidebar's own lg breakpoint that sidebar is no
+   longer permanently visible (see attack-demo.php, which injects a
+   hamburger toggle for it), so the content wrappers need to reclaim that
+   space and go full-width instead of leaving a blank 300px gutter. */
+@media (max-width: 991.98px) {
+  .homewrapper,
+  .payslipswrapper,
+  .leaveapplicationwrapper,
+  .reimbursmentwrapper,
+  .usersettingswrapper,
+  .complaintswrapper {
+    margin-left: 0;
+    margin-top: 90px;
+    padding: 0 14px;
+  }
+
+  .leaveapplicationwrapper .container,
+  .reimbursmentwrapper .container,
+  .usersettingswrapper .container,
+  .complaintswrapper .container {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .leaveapplicationwrapper .container .nav-tabs,
+  .reimbursmentwrapper .container .nav-tabs,
+  .usersettingswrapper .container .nav-tabs,
+  .complaintswrapper .container .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .leaveapplicationwrapper .container .tab-content table,
+  .reimbursmentwrapper .container .tab-content table,
+  .usersettingswrapper .container .tab-content table,
+  .complaintswrapper .container .tab-content table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  .payslipswrapper .payslips .row {
+    margin: 0;
+  }
+  .payslipswrapper .card {
+    margin-right: 0;
+  }
+
+  .navbar-brand img {
+    height: 30px !important;
+    width: auto !important;
+  }
+}
+
 html {
   height: 100%;
 }

@@ -199,11 +199,102 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         display: none;
     }
     #attack-demo-toast a { color: #04220f; }
+
+    /* Mobile sidebar toggle: injected by JS to open the HR portal's own
+       fixed sidebar nav, which has no way to open on small screens otherwise. */
+    #adp-mobile-nav-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        padding: 8px;
+        margin-right: 6px;
+        cursor: pointer;
+        vertical-align: middle;
+    }
+    #adp-mobile-nav-toggle .navbar-toggler-icon {
+        display: inline-block;
+        width: 1.5em;
+        height: 1.5em;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,0,0,0.75)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100%;
+    }
+    #adp-mobile-nav-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 45;
+        display: none;
+    }
+    #adp-mobile-nav-backdrop.open { display: block; }
+
+    @media (max-width: 991.98px) {
+        #adp-mobile-nav-toggle { display: inline-block; }
+        #sidebarMenu.collapse:not(.show) { display: block !important; }
+        #sidebarMenu .navlinks {
+            transform: translateX(-105%);
+            transition: transform 0.25s ease;
+            z-index: 50;
+        }
+        #sidebarMenu.show .navlinks { transform: translateX(0); }
+    }
+
+    /* Mobile-friendly attack demo panel: a bottom sheet with a backdrop,
+       a drag handle, and a bigger close target instead of the desktop
+       side-drawer with only a small "x" button. */
+    .adp-drag-handle {
+        display: none;
+        width: 42px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.35);
+        margin: 10px auto 0;
+    }
+    #attack-demo-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 99997;
+        display: none;
+    }
+    #attack-demo-backdrop.open { display: block; }
+
+    @media (max-width: 600px) {
+        #attack-demo-panel {
+            top: auto;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 100%;
+            height: 88vh;
+            max-height: 88vh;
+            border-radius: 16px 16px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.28s ease;
+        }
+        #attack-demo-panel.open { transform: translateY(0); }
+        #attack-demo-panel .adp-drag-handle { display: block; }
+        #attack-demo-toggle {
+            bottom: 18px;
+            right: 14px;
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+        #attack-demo-panel .adp-close {
+            font-size: 26px;
+            padding: 8px 10px;
+            min-width: 44px;
+            min-height: 44px;
+        }
+    }
 </style>
 
 <button id="attack-demo-toggle" type="button" onclick="AttackDemo.togglePanel()" data-i18n="toggle.label">⚔ Attack Demos</button>
 
 <div id="attack-demo-panel">
+    <div class="adp-drag-handle" aria-hidden="true"></div>
     <div class="adp-header">
         <h2 data-i18n="panel.title">⚔ AWSGoat Attack Demos</h2>
         <div class="adp-header-right">
@@ -223,7 +314,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             Ending the input with <code>#</code> comments out the password check, and
             <code>LIMIT</code>/<code>ORDER BY</code> control which account you're logged in as.
         </p>
-        <code class="adp-payload">email = ' or '1'='1'#</code>
+        <code class="adp-payload" id="adp-sqli-payload">email = ' or '1'='1'#</code>
         <div>
             <button class="adp-btn" type="button" data-i18n="c1.btnBypass" onclick="AttackDemo.goRunSqli('bypass')">Run: Bypass Login</button>
             <button class="adp-btn" type="button" data-i18n="c1.btnManager" onclick="AttackDemo.goRunSqli('manager')">Run: Login as Manager</button>
@@ -313,6 +404,8 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
     </div>
 </div>
 
+<div id="attack-demo-backdrop" onclick="AttackDemo.closePanel()"></div>
+
 <div id="attack-demo-toast"></div>
 
 <script>
@@ -361,6 +454,8 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                 'c4.li4': 'With those unrestricted credentials, they create a new IAM user, attach <code>AdministratorAccess</code>, and now own the AWS account.',
                 'toast.uploadSuccess': 'Upload succeeded: the .php proof-of-concept was accepted with no type check.',
                 'toast.viewFileLink': 'View the executed file',
+                'toast.manualUploadNeeded': "Your browser blocked auto-attaching the file. The PoC file was downloaded \u2014 tap \"Choose File\" below, pick attack-demo-poc.php, then press Upload/Apply yourself.",
+                'toast.demoError': 'Demo error: ',
             },
             es: {
                 'toggle.label': '⚔ Demos de Ataques',
@@ -400,6 +495,8 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                 'c4.li4': 'Con esas credenciales sin restricciones, crean un nuevo usuario IAM, adjuntan <code>AdministratorAccess</code>, y ahora son due\u00f1os de la cuenta de AWS.',
                 'toast.uploadSuccess': 'Carga exitosa: la prueba de concepto .php fue aceptada sin verificaci\u00f3n de tipo.',
                 'toast.viewFileLink': 'Ver el archivo ejecutado',
+                'toast.manualUploadNeeded': 'Tu navegador bloque\u00f3 el adjuntar el archivo autom\u00e1ticamente. Se descarg\u00f3 el archivo PoC \u2014 toca "Elegir archivo" abajo, selecciona attack-demo-poc.php, y luego presiona Upload/Apply t\u00fa mismo.',
+                'toast.demoError': 'Error en la demo: ',
             },
         };
 
@@ -447,24 +544,125 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             "?" + ">\n";
 
         function togglePanel() {
-            document.getElementById('attack-demo-panel').classList.toggle('open');
+            var panel = document.getElementById('attack-demo-panel');
+            if (panel.classList.contains('open')) {
+                closePanel();
+            } else {
+                openPanel();
+            }
+        }
+
+        function openPanel() {
+            document.getElementById('attack-demo-panel').classList.add('open');
+            var backdrop = document.getElementById('attack-demo-backdrop');
+            if (backdrop) backdrop.classList.add('open');
+        }
+
+        function closePanel() {
+            document.getElementById('attack-demo-panel').classList.remove('open');
+            var backdrop = document.getElementById('attack-demo-backdrop');
+            if (backdrop) backdrop.classList.remove('open');
+        }
+
+        function initSwipeToClose() {
+            var panel = document.getElementById('attack-demo-panel');
+            var handle = panel.querySelector('.adp-drag-handle');
+            var header = panel.querySelector('.adp-header');
+            var targets = [handle, header].filter(Boolean);
+            var startY = null;
+
+            targets.forEach(function (el) {
+                el.addEventListener('touchstart', function (e) {
+                    startY = e.touches[0].clientY;
+                    panel.style.transition = 'none';
+                }, { passive: true });
+                el.addEventListener('touchmove', function (e) {
+                    if (startY === null) return;
+                    var delta = e.touches[0].clientY - startY;
+                    if (delta > 0) panel.style.transform = 'translateY(' + delta + 'px)';
+                }, { passive: true });
+                el.addEventListener('touchend', function (e) {
+                    var delta = e.changedTouches[0].clientY - startY;
+                    panel.style.transition = '';
+                    panel.style.transform = '';
+                    startY = null;
+                    if (delta > 90) closePanel();
+                });
+            });
+        }
+
+        function initMobileNav() {
+            var sidebar = document.getElementById('sidebarMenu');
+            var navContainer = document.querySelector('.nav-flex-container');
+            if (!sidebar || !navContainer) return;
+
+            var toggle = document.createElement('button');
+            toggle.id = 'adp-mobile-nav-toggle';
+            toggle.type = 'button';
+            toggle.setAttribute('aria-label', 'Toggle menu');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.innerHTML = '<span class="navbar-toggler-icon"></span>';
+            navContainer.insertBefore(toggle, navContainer.firstChild);
+
+            var backdrop = document.createElement('div');
+            backdrop.id = 'adp-mobile-nav-backdrop';
+            document.body.appendChild(backdrop);
+
+            function closeSidebar() {
+                sidebar.classList.remove('show');
+                backdrop.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+            function openSidebar() {
+                sidebar.classList.add('show');
+                backdrop.classList.add('open');
+                toggle.setAttribute('aria-expanded', 'true');
+            }
+
+            toggle.addEventListener('click', function () {
+                if (sidebar.classList.contains('show')) closeSidebar();
+                else openSidebar();
+            });
+            backdrop.addEventListener('click', closeSidebar);
+            sidebar.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', closeSidebar);
+            });
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 992) closeSidebar();
+            });
+        }
+
+        function updatePayloadDisplay(kind) {
+            var el = document.getElementById('adp-sqli-payload');
+            if (el) el.textContent = "email = '" + SQLI_PAYLOADS[kind] + "'";
         }
 
         function runSqliDemo(kind) {
-            var form = document.querySelector('form.login-email') || document.querySelector('input[name="email"]').closest('form');
-            var email = form.querySelector('input[name="email"]');
-            var password = form.querySelector('input[name="password"]');
-            email.type = 'text';
-            email.value = SQLI_PAYLOADS[kind];
-            password.value = 'attack-demo';
-            form.submit();
+            try {
+                var form = document.querySelector('form.login-email') || document.querySelector('input[name="email"]').closest('form');
+                var email = form.querySelector('input[name="email"]');
+                var password = form.querySelector('input[name="password"]');
+                email.type = 'text';
+                email.value = SQLI_PAYLOADS[kind];
+                password.value = 'attack-demo';
+                updatePayloadDisplay(kind);
+                try { email.focus(); } catch (e) {}
+                setTimeout(function () { form.submit(); }, 900);
+            } catch (err) {
+                showToast(t('toast.demoError') + (err && err.message ? err.message : err));
+            }
         }
 
         function goRunSqli(kind) {
-            if (ctx.page === 'login') {
-                runSqliDemo(kind);
-            } else {
-                window.location.href = ctx.base + 'login.php?attack_demo=' + kind;
+            try {
+                updatePayloadDisplay(kind);
+                if (ctx.page === 'login') {
+                    runSqliDemo(kind);
+                } else {
+                    window.location.href = ctx.base + 'login.php?attack_demo=' + kind;
+                }
+            } catch (err) {
+                showToast(t('toast.demoError') + (err && err.message ? err.message : err));
             }
         }
 
@@ -472,47 +670,88 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             return new File([POC_PHP_SOURCE], 'attack-demo-poc.php', { type: 'application/x-php' });
         }
 
-        function runUploadDemo() {
-            var formSelector = null;
-            if (ctx.page === 'admin-payslips' || ctx.page === 'superadmin-payslips') {
-                formSelector = '#uploadpayslip form';
-            } else if (ctx.page === 'admin-reimbursment') {
-                formSelector = '#applyreimbursment form';
-            }
-            if (!formSelector) return;
-
-            var form = document.querySelector(formSelector);
-            if (!form) return;
-
-            var fileInput = form.querySelector('input[type="file"]');
-            if (window.DataTransfer && fileInput) {
+        function tryAutoAttachFile(fileInput) {
+            if (!fileInput || !window.DataTransfer) return false;
+            try {
                 var dt = new DataTransfer();
                 dt.items.add(buildPocFile());
                 fileInput.files = dt.files;
+                return !!(fileInput.files && fileInput.files.length > 0 && fileInput.files[0].name === 'attack-demo-poc.php');
+            } catch (err) {
+                return false;
             }
+        }
 
-            var dateField = form.querySelector('input[type="date"]');
-            if (dateField) {
-                dateField.value = new Date().toISOString().slice(0, 10);
+        function offerManualFileDownload(fileInput) {
+            try {
+                var blob = new Blob([POC_PHP_SOURCE], { type: 'application/x-php' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'attack-demo-poc.php';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+            } catch (err) {
+                // Fall through to the toast even if the download itself failed to trigger.
             }
-
-            var selectField = form.querySelector('select');
-            if (selectField && selectField.options.length > 1) {
-                selectField.selectedIndex = 1;
+            showToast(t('toast.manualUploadNeeded'));
+            if (fileInput) {
+                fileInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                try { fileInput.focus(); } catch (e) {}
             }
+        }
 
-            var amountField = form.querySelector('input[name="amount"]');
-            if (amountField) {
-                amountField.value = '1';
+        function runUploadDemo() {
+            try {
+                var formSelector = null;
+                if (ctx.page === 'admin-payslips' || ctx.page === 'superadmin-payslips') {
+                    formSelector = '#uploadpayslip form';
+                } else if (ctx.page === 'admin-reimbursment') {
+                    formSelector = '#applyreimbursment form';
+                }
+                if (!formSelector) return;
+
+                var form = document.querySelector(formSelector);
+                if (!form) return;
+
+                var fileInput = form.querySelector('input[type="file"]');
+                var attached = tryAutoAttachFile(fileInput);
+
+                var dateField = form.querySelector('input[type="date"]');
+                if (dateField) {
+                    dateField.value = new Date().toISOString().slice(0, 10);
+                }
+
+                var selectField = form.querySelector('select');
+                if (selectField && selectField.options.length > 1) {
+                    selectField.selectedIndex = 1;
+                }
+
+                var amountField = form.querySelector('input[name="amount"]');
+                if (amountField) {
+                    amountField.value = '1';
+                }
+
+                var marker = document.createElement('input');
+                marker.type = 'hidden';
+                marker.name = 'attack_demo';
+                marker.value = '1';
+                form.appendChild(marker);
+
+                if (!attached) {
+                    // Mobile browsers (iOS Safari especially) block programmatic file-input
+                    // assignment. Leave the other fields pre-filled and let the visitor pick
+                    // the downloaded PoC file themselves, then submit the form normally.
+                    offerManualFileDownload(fileInput);
+                    return;
+                }
+
+                form.submit();
+            } catch (err) {
+                showToast(t('toast.demoError') + (err && err.message ? err.message : err));
             }
-
-            var marker = document.createElement('input');
-            marker.type = 'hidden';
-            marker.name = 'attack_demo';
-            marker.value = '1';
-            form.appendChild(marker);
-
-            form.submit();
         }
 
         function showToast(html) {
@@ -528,7 +767,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             if (ctx.page === 'login') {
                 var kind = params.get('attack_demo');
                 if (kind && SQLI_PAYLOADS[kind]) {
-                    document.getElementById('attack-demo-panel').classList.add('open');
+                    openPanel();
                     setTimeout(function () { runSqliDemo(kind); }, 400);
                 }
             }
@@ -546,9 +785,12 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         document.addEventListener('DOMContentLoaded', handleIncomingDemoParams);
 
         initLanguage();
+        initMobileNav();
+        initSwipeToClose();
 
         return {
             togglePanel: togglePanel,
+            closePanel: closePanel,
             goRunSqli: goRunSqli,
             runUploadDemo: runUploadDemo,
             setLanguage: setLanguage,
