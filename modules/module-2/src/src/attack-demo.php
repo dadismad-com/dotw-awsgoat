@@ -72,8 +72,35 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 10px;
     }
     #attack-demo-panel .adp-header h2 { margin: 0; font-size: 17px; }
+    #attack-demo-panel .adp-header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    #attack-demo-panel .adp-lang-toggle {
+        display: flex;
+        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    #attack-demo-panel .adp-lang-btn {
+        background: transparent;
+        color: #fff;
+        border: none;
+        padding: 3px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+    #attack-demo-panel .adp-lang-btn.active {
+        background: rgba(255,255,255,0.9);
+        color: #b91c1c;
+        opacity: 1;
+    }
     #attack-demo-panel .adp-close {
         background: none;
         border: none;
@@ -171,116 +198,115 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         z-index: 99999;
         display: none;
     }
-    .adp-highlight-row {
-        outline: 3px solid #dc2626 !important;
-        animation: adp-pulse 1.6s ease-in-out 2;
-    }
-    @keyframes adp-pulse {
-        0%, 100% { background-color: transparent; }
-        50% { background-color: rgba(220, 38, 38, 0.15); }
-    }
+    #attack-demo-toast a { color: #04220f; }
 </style>
 
-<button id="attack-demo-toggle" type="button" onclick="AttackDemo.togglePanel()">⚔ Attack Demos</button>
+<button id="attack-demo-toggle" type="button" onclick="AttackDemo.togglePanel()" data-i18n="toggle.label">⚔ Attack Demos</button>
 
 <div id="attack-demo-panel">
     <div class="adp-header">
-        <h2>⚔ AWSGoat Attack Demos</h2>
-        <button class="adp-close" type="button" onclick="AttackDemo.togglePanel()">&times;</button>
+        <h2 data-i18n="panel.title">⚔ AWSGoat Attack Demos</h2>
+        <div class="adp-header-right">
+            <div class="adp-lang-toggle">
+                <button class="adp-lang-btn" type="button" data-lang="en" onclick="AttackDemo.setLanguage('en')">EN</button>
+                <button class="adp-lang-btn" type="button" data-lang="es" onclick="AttackDemo.setLanguage('es')">ES</button>
+            </div>
+            <button class="adp-close" type="button" onclick="AttackDemo.togglePanel()">&times;</button>
+        </div>
     </div>
 
     <div class="adp-card">
-        <span class="adp-badge live">LIVE DEMO</span>
-        <h3>1. SQL Injection &mdash; Login Bypass</h3>
-        <p class="adp-desc">
+        <span class="adp-badge live" data-i18n="badge.live">LIVE DEMO</span>
+        <h3 data-i18n="c1.title">1. SQL Injection &mdash; Login Bypass</h3>
+        <p class="adp-desc" data-i18n-html="c1.desc">
             The login query builds SQL by directly concatenating the <code>email</code> field.
             Ending the input with <code>#</code> comments out the password check, and
             <code>LIMIT</code>/<code>ORDER BY</code> control which account you're logged in as.
         </p>
         <code class="adp-payload">email = ' or '1'='1'#</code>
         <div>
-            <button class="adp-btn" type="button" onclick="AttackDemo.goRunSqli('bypass')">Run: Bypass Login</button>
-            <button class="adp-btn" type="button" onclick="AttackDemo.goRunSqli('manager')">Run: Login as Manager</button>
-            <button class="adp-btn" type="button" onclick="AttackDemo.goRunSqli('admin')">Run: Login as Admin</button>
+            <button class="adp-btn" type="button" data-i18n="c1.btnBypass" onclick="AttackDemo.goRunSqli('bypass')">Run: Bypass Login</button>
+            <button class="adp-btn" type="button" data-i18n="c1.btnManager" onclick="AttackDemo.goRunSqli('manager')">Run: Login as Manager</button>
+            <button class="adp-btn" type="button" data-i18n="c1.btnAdmin" onclick="AttackDemo.goRunSqli('admin')">Run: Login as Admin</button>
         </div>
-        <p class="adp-note">Safe & reversible &mdash; it only signs you in as a demo account. Use Logout to reset.</p>
+        <p class="adp-note" data-i18n-html="c1.note">Safe &amp; reversible &mdash; it only signs you in as a demo account. Use Logout to reset.</p>
     </div>
 
     <div class="adp-card">
-        <span class="adp-badge live">LIVE DEMO</span>
-        <h3>2. Unrestricted File Upload</h3>
-        <p class="adp-desc">
+        <span class="adp-badge live" data-i18n="badge.live">LIVE DEMO</span>
+        <h3 data-i18n="c2.title">2. Unrestricted File Upload</h3>
+        <p class="adp-desc" data-i18n-html="c2.desc">
             The Manager/Admin payslip &amp; reimbursement uploads never check file type, unlike the
             Normal User upload which only allows PDF/JPEG/PNG. This demo uploads a harmless
             <code>.php</code> proof-of-concept (no shell, no network access) to prove the server
             will happily store and execute server-side code here.
         </p>
         <?php if ($attackDemoPage === 'admin-payslips' || $attackDemoPage === 'admin-reimbursment' || $attackDemoPage === 'superadmin-payslips') { ?>
-            <button class="adp-btn" type="button" onclick="AttackDemo.runUploadDemo()">Run: Upload PHP proof-of-concept</button>
-            <p class="adp-note">After it uploads, click "View File" on the highlighted row to watch it execute.</p>
+            <button class="adp-btn" type="button" data-i18n="c2.btnUpload" onclick="AttackDemo.runUploadDemo()">Run: Upload PHP proof-of-concept</button>
+            <p class="adp-note" data-i18n="c2.noteAfterUpload">After it uploads, a link to view the executed file will appear here.</p>
         <?php } elseif ($attackDemoRole === 1) { ?>
-            <a class="adp-btn" href="<?php echo htmlspecialchars($attackDemoBase); ?>admin/payslips.php">Go to Manager Payslips &rarr;</a>
+            <a class="adp-btn" data-i18n="c2.linkManager" href="<?php echo htmlspecialchars($attackDemoBase); ?>admin/payslips.php">Go to Manager Payslips &rarr;</a>
         <?php } elseif ($attackDemoRole === 2) { ?>
-            <a class="adp-btn" href="<?php echo htmlspecialchars($attackDemoBase); ?>superadmin/payslips.php">Go to Admin Payslips &rarr;</a>
+            <a class="adp-btn" data-i18n="c2.linkAdmin" href="<?php echo htmlspecialchars($attackDemoBase); ?>superadmin/payslips.php">Go to Admin Payslips &rarr;</a>
         <?php } else { ?>
-            <p class="adp-note">Log in as a Manager or Admin first (use the SQL injection demo above), then come back to this menu on their Payslips page.</p>
+            <p class="adp-note" data-i18n="c2.noteLoginFirst">Log in as a Manager or Admin first (use the SQL injection demo above), then come back to this menu on their Payslips page.</p>
         <?php } ?>
         <details>
-            <summary>Where does this attack lead next? (not run here)</summary>
+            <summary data-i18n="c2.summary">Where does this attack lead next? (not run here)</summary>
             <ol>
-                <li>A real attacker uploads a PHP <em>reverse shell</em> instead of a harmless file.</li>
-                <li>Opening "View File" executes it, handing the attacker a shell on the ECS container.</li>
-                <li>From there: container breakout via a misconfigured <code>sudo</code> rule + the
+                <li data-i18n-html="c2.li1">A real attacker uploads a PHP <em>reverse shell</em> instead of a harmless file.</li>
+                <li data-i18n-html="c2.li2">Opening "View File" executes it, handing the attacker a shell on the ECS container.</li>
+                <li data-i18n-html="c2.li3">From there: container breakout via a misconfigured <code>sudo</code> rule + the
                     <code>SYS_PTRACE</code> capability, then reading the EC2/ECS instance metadata
                     service for real IAM credentials.</li>
             </ol>
-            <p class="adp-note">This chain grants real, persistent access to your AWS account, so it is intentionally never executed from this button. See "ECS Container Breakout" below.</p>
+            <p class="adp-note" data-i18n-html="c2.detailsNote">This chain grants real, persistent access to your AWS account, so it is intentionally never executed from this button. See "ECS Container Breakout" below.</p>
         </details>
     </div>
 
     <div class="adp-card">
-        <span class="adp-badge explainer">EXPLAINER ONLY</span>
-        <h3>3. ECS Container Breakout</h3>
-        <p class="adp-desc">
+        <span class="adp-badge explainer" data-i18n="badge.explainer">EXPLAINER ONLY</span>
+        <h3 data-i18n="c3.title">3. ECS Container Breakout</h3>
+        <p class="adp-desc" data-i18n="c3.desc">
             Not executed here: this needs an actual reverse shell and a second attacker-controlled
             EC2 instance, and it permanently exposes the ECS host's IAM credentials.
         </p>
         <details>
-            <summary>How it works</summary>
+            <summary data-i18n="howItWorks.summary">How it works</summary>
             <ol>
-                <li>From the reverse shell (see attack #2), the attacker is a low-privilege
+                <li data-i18n-html="c3.li1">From the reverse shell (see attack #2), the attacker is a low-privilege
                     <code>www-data</code> user with no access to <code>/root</code> or the
                     instance metadata endpoint.</li>
-                <li><code>sudo -l</code> reveals they can run <code>vim</code> as root with no
+                <li data-i18n-html="c3.li2"><code>sudo -l</code> reveals they can run <code>vim</code> as root with no
                     password &mdash; vim's <code>:! /bin/sh</code> command spawns a root shell.</li>
-                <li>As root, the container's <code>SYS_PTRACE</code> capability lets it inject
+                <li data-i18n-html="c3.li3">As root, the container's <code>SYS_PTRACE</code> capability lets it inject
                     shellcode into a root-owned process on the <em>host</em> instance, breaking
                     out of the container entirely.</li>
-                <li>From the host, <code>curl http://169.254.169.254/latest/meta-data/iam/security-credentials/&lt;role&gt;</code>
+                <li data-i18n-html="c3.li4">From the host, <code>curl http://169.254.169.254/latest/meta-data/iam/security-credentials/&lt;role&gt;</code>
                     returns real, temporary AWS credentials for the EC2 instance role.</li>
             </ol>
         </details>
     </div>
 
     <div class="adp-card">
-        <span class="adp-badge explainer">EXPLAINER ONLY</span>
-        <h3>4. IAM Privilege Escalation</h3>
-        <p class="adp-desc">
+        <span class="adp-badge explainer" data-i18n="badge.explainer">EXPLAINER ONLY</span>
+        <h3 data-i18n="c4.title">4. IAM Privilege Escalation</h3>
+        <p class="adp-desc" data-i18n="c4.desc">
             Not executed here: this would create a real, permanent IAM admin user on the live
             AWS account for anyone who clicked the button.
         </p>
         <details>
-            <summary>How it works</summary>
+            <summary data-i18n="howItWorks.summary">How it works</summary>
             <ol>
-                <li>Using the instance credentials from attack #3, the attacker lists their own
+                <li data-i18n-html="c4.li1">Using the instance credentials from attack #3, the attacker lists their own
                     role's policies and finds broad IAM permissions, but a permissions boundary
                     blocks direct privilege escalation (e.g. <code>iam:CreateUser</code> is denied).</li>
-                <li>The boundary still allows <code>iam:PassRole</code>, <code>ec2:RunInstances</code>
+                <li data-i18n-html="c4.li2">The boundary still allows <code>iam:PassRole</code>, <code>ec2:RunInstances</code>
                     and <code>ssm:SendCommand</code>. The attacker finds another IAM role with an
                     unrestricted admin policy attached.</li>
-                <li>They launch a new EC2 instance and pass it that more-privileged role, then use
+                <li data-i18n-html="c4.li3">They launch a new EC2 instance and pass it that more-privileged role, then use
                     SSM to run a command on it and read its instance-metadata credentials.</li>
-                <li>With those unrestricted credentials, they create a new IAM user, attach
+                <li data-i18n-html="c4.li4">With those unrestricted credentials, they create a new IAM user, attach
                     <code>AdministratorAccess</code>, and now own the AWS account.</li>
             </ol>
         </details>
@@ -295,6 +321,118 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             base: <?php echo json_encode($attackDemoBase); ?>,
             page: <?php echo json_encode($attackDemoPage); ?>,
         };
+
+        var I18N = {
+            en: {
+                'toggle.label': '⚔ Attack Demos',
+                'panel.title': '⚔ AWSGoat Attack Demos',
+                'badge.live': 'LIVE DEMO',
+                'badge.explainer': 'EXPLAINER ONLY',
+                'c1.title': '1. SQL Injection \u2014 Login Bypass',
+                'c1.desc': 'The login query builds SQL by directly concatenating the <code>email</code> field. Ending the input with <code>#</code> comments out the password check, and <code>LIMIT</code>/<code>ORDER BY</code> control which account you\'re logged in as.',
+                'c1.btnBypass': 'Run: Bypass Login',
+                'c1.btnManager': 'Run: Login as Manager',
+                'c1.btnAdmin': 'Run: Login as Admin',
+                'c1.note': 'Safe &amp; reversible \u2014 it only signs you in as a demo account. Use Logout to reset.',
+                'c2.title': '2. Unrestricted File Upload',
+                'c2.desc': 'The Manager/Admin payslip &amp; reimbursement uploads never check file type, unlike the Normal User upload which only allows PDF/JPEG/PNG. This demo uploads a harmless <code>.php</code> proof-of-concept (no shell, no network access) to prove the server will happily store and execute server-side code here.',
+                'c2.btnUpload': 'Run: Upload PHP proof-of-concept',
+                'c2.noteAfterUpload': 'After it uploads, a link to view the executed file will appear here.',
+                'c2.linkManager': 'Go to Manager Payslips \u2192',
+                'c2.linkAdmin': 'Go to Admin Payslips \u2192',
+                'c2.noteLoginFirst': 'Log in as a Manager or Admin first (use the SQL injection demo above), then come back to this menu on their Payslips page.',
+                'c2.summary': 'Where does this attack lead next? (not run here)',
+                'c2.li1': 'A real attacker uploads a PHP <em>reverse shell</em> instead of a harmless file.',
+                'c2.li2': 'Opening "View File" executes it, handing the attacker a shell on the ECS container.',
+                'c2.li3': 'From there: container breakout via a misconfigured <code>sudo</code> rule + the <code>SYS_PTRACE</code> capability, then reading the EC2/ECS instance metadata service for real IAM credentials.',
+                'c2.detailsNote': 'This chain grants real, persistent access to your AWS account, so it is intentionally never executed from this button. See "ECS Container Breakout" below.',
+                'c3.title': '3. ECS Container Breakout',
+                'c3.desc': 'Not executed here: this needs an actual reverse shell and a second attacker-controlled EC2 instance, and it permanently exposes the ECS host\'s IAM credentials.',
+                'howItWorks.summary': 'How it works',
+                'c3.li1': 'From the reverse shell (see attack #2), the attacker is a low-privilege <code>www-data</code> user with no access to <code>/root</code> or the instance metadata endpoint.',
+                'c3.li2': '<code>sudo -l</code> reveals they can run <code>vim</code> as root with no password &mdash; vim\'s <code>:! /bin/sh</code> command spawns a root shell.',
+                'c3.li3': 'As root, the container\'s <code>SYS_PTRACE</code> capability lets it inject shellcode into a root-owned process on the <em>host</em> instance, breaking out of the container entirely.',
+                'c3.li4': 'From the host, <code>curl http://169.254.169.254/latest/meta-data/iam/security-credentials/&lt;role&gt;</code> returns real, temporary AWS credentials for the EC2 instance role.',
+                'c4.title': '4. IAM Privilege Escalation',
+                'c4.desc': 'Not executed here: this would create a real, permanent IAM admin user on the live AWS account for anyone who clicked the button.',
+                'c4.li1': 'Using the instance credentials from attack #3, the attacker lists their own role\'s policies and finds broad IAM permissions, but a permissions boundary blocks direct privilege escalation (e.g. <code>iam:CreateUser</code> is denied).',
+                'c4.li2': 'The boundary still allows <code>iam:PassRole</code>, <code>ec2:RunInstances</code> and <code>ssm:SendCommand</code>. The attacker finds another IAM role with an unrestricted admin policy attached.',
+                'c4.li3': 'They launch a new EC2 instance and pass it that more-privileged role, then use SSM to run a command on it and read its instance-metadata credentials.',
+                'c4.li4': 'With those unrestricted credentials, they create a new IAM user, attach <code>AdministratorAccess</code>, and now own the AWS account.',
+                'toast.uploadSuccess': 'Upload succeeded: the .php proof-of-concept was accepted with no type check.',
+                'toast.viewFileLink': 'View the executed file',
+            },
+            es: {
+                'toggle.label': '⚔ Demos de Ataques',
+                'panel.title': '⚔ Demos de Ataques AWSGoat',
+                'badge.live': 'DEMO EN VIVO',
+                'badge.explainer': 'SOLO EXPLICACI\u00d3N',
+                'c1.title': '1. Inyecci\u00f3n SQL \u2014 Bypass de Login',
+                'c1.desc': 'La consulta de login construye el SQL concatenando directamente el campo <code>email</code>. Terminar la entrada con <code>#</code> comenta la verificaci\u00f3n de contrase\u00f1a, y <code>LIMIT</code>/<code>ORDER BY</code> controlan con qu\u00e9 cuenta inicias sesi\u00f3n.',
+                'c1.btnBypass': 'Ejecutar: Bypass de Login',
+                'c1.btnManager': 'Ejecutar: Iniciar como Gerente',
+                'c1.btnAdmin': 'Ejecutar: Iniciar como Admin',
+                'c1.note': 'Seguro y reversible \u2014 solo inicia sesi\u00f3n con una cuenta de demostraci\u00f3n. Usa Cerrar sesi\u00f3n para reiniciar.',
+                'c2.title': '2. Carga de Archivos sin Restricciones',
+                'c2.desc': 'Las cargas de recibos de pago y reembolsos de Gerente/Admin nunca verifican el tipo de archivo, a diferencia de la carga de Usuario Normal que solo permite PDF/JPEG/PNG. Esta demo carga una prueba de concepto <code>.php</code> inofensiva (sin shell, sin acceso a red) para demostrar que el servidor almacenar\u00e1 y ejecutar\u00e1 c\u00f3digo del lado del servidor sin problema.',
+                'c2.btnUpload': 'Ejecutar: Subir prueba de concepto PHP',
+                'c2.noteAfterUpload': 'Despu\u00e9s de subirlo, aparecer\u00e1 aqu\u00ed un enlace para ver el archivo ejecutado.',
+                'c2.linkManager': 'Ir a Recibos de Pago del Gerente \u2192',
+                'c2.linkAdmin': 'Ir a Recibos de Pago del Admin \u2192',
+                'c2.noteLoginFirst': 'Primero inicia sesi\u00f3n como Gerente o Admin (usa la demo de inyecci\u00f3n SQL arriba), y luego vuelve a este men\u00fa en su p\u00e1gina de Recibos de Pago.',
+                'c2.summary': '\u00bfA d\u00f3nde lleva este ataque despu\u00e9s? (no se ejecuta aqu\u00ed)',
+                'c2.li1': 'Un atacante real sube una <em>reverse shell</em> en PHP en lugar de un archivo inofensivo.',
+                'c2.li2': 'Abrir "View File" la ejecuta, d\u00e1ndole al atacante una shell en el contenedor ECS.',
+                'c2.li3': 'Desde ah\u00ed: escape del contenedor mediante una regla de <code>sudo</code> mal configurada + la capacidad <code>SYS_PTRACE</code>, y luego lectura del servicio de metadatos de la instancia EC2/ECS para obtener credenciales IAM reales.',
+                'c2.detailsNote': 'Esta cadena otorga acceso real y persistente a tu cuenta de AWS, por lo que intencionalmente nunca se ejecuta desde este bot\u00f3n. Ver "ECS Container Breakout" abajo.',
+                'c3.title': '3. Escape de Contenedor ECS',
+                'c3.desc': 'No se ejecuta aqu\u00ed: esto requiere una reverse shell real y una segunda instancia EC2 controlada por el atacante, y expone permanentemente las credenciales IAM del host ECS.',
+                'howItWorks.summary': 'C\u00f3mo funciona',
+                'c3.li1': 'Desde la reverse shell (ver ataque #2), el atacante es un usuario de bajo privilegio <code>www-data</code> sin acceso a <code>/root</code> ni al endpoint de metadatos de la instancia.',
+                'c3.li2': '<code>sudo -l</code> revela que pueden ejecutar <code>vim</code> como root sin contrase\u00f1a \u2014 el comando <code>:! /bin/sh</code> de vim genera una shell de root.',
+                'c3.li3': 'Como root, la capacidad <code>SYS_PTRACE</code> del contenedor permite inyectar shellcode en un proceso propiedad de root en la instancia <em>host</em>, escapando completamente del contenedor.',
+                'c3.li4': 'Desde el host, <code>curl http://169.254.169.254/latest/meta-data/iam/security-credentials/&lt;role&gt;</code> devuelve credenciales de AWS reales y temporales para el rol de la instancia EC2.',
+                'c4.title': '4. Escalaci\u00f3n de Privilegios IAM',
+                'c4.desc': 'No se ejecuta aqu\u00ed: esto crear\u00eda un usuario admin de IAM real y permanente en la cuenta de AWS en vivo para cualquiera que presione el bot\u00f3n.',
+                'c4.li1': 'Usando las credenciales de la instancia del ataque #3, el atacante lista las pol\u00edticas de su propio rol y encuentra permisos IAM amplios, pero un l\u00edmite de permisos bloquea la escalaci\u00f3n directa de privilegios (por ejemplo, <code>iam:CreateUser</code> es denegado).',
+                'c4.li2': 'El l\u00edmite a\u00fan permite <code>iam:PassRole</code>, <code>ec2:RunInstances</code> y <code>ssm:SendCommand</code>. El atacante encuentra otro rol IAM con una pol\u00edtica de administrador sin restricciones.',
+                'c4.li3': 'Lanzan una nueva instancia EC2 y le asignan ese rol m\u00e1s privilegiado, luego usan SSM para ejecutar un comando en ella y leer sus credenciales de metadatos.',
+                'c4.li4': 'Con esas credenciales sin restricciones, crean un nuevo usuario IAM, adjuntan <code>AdministratorAccess</code>, y ahora son due\u00f1os de la cuenta de AWS.',
+                'toast.uploadSuccess': 'Carga exitosa: la prueba de concepto .php fue aceptada sin verificaci\u00f3n de tipo.',
+                'toast.viewFileLink': 'Ver el archivo ejecutado',
+            },
+        };
+
+        var currentLang = 'en';
+
+        function t(key) {
+            var dict = I18N[currentLang] || I18N.en;
+            return dict[key] !== undefined ? dict[key] : (I18N.en[key] || '');
+        }
+
+        function setLanguage(lang) {
+            currentLang = I18N[lang] ? lang : 'en';
+            try { localStorage.setItem('attackDemoLang', currentLang); } catch (e) {}
+
+            document.querySelectorAll('[data-i18n]').forEach(function (el) {
+                var key = el.getAttribute('data-i18n');
+                if (I18N[currentLang][key] !== undefined) el.textContent = I18N[currentLang][key];
+            });
+            document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+                var key = el.getAttribute('data-i18n-html');
+                if (I18N[currentLang][key] !== undefined) el.innerHTML = I18N[currentLang][key];
+            });
+            document.querySelectorAll('.adp-lang-btn').forEach(function (btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+            });
+        }
+
+        function initLanguage() {
+            var saved = null;
+            try { saved = localStorage.getItem('attackDemoLang'); } catch (e) {}
+            var initial = saved || ((navigator.language || '').toLowerCase().indexOf('es') === 0 ? 'es' : 'en');
+            setLanguage(initial);
+        }
 
         var SQLI_PAYLOADS = {
             bypass: "' or '1'='1'#",
@@ -377,11 +515,11 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             form.submit();
         }
 
-        function showToast(message) {
+        function showToast(html) {
             var toast = document.getElementById('attack-demo-toast');
-            toast.textContent = message;
+            toast.innerHTML = html;
             toast.style.display = 'block';
-            setTimeout(function () { toast.style.display = 'none'; }, 8000);
+            setTimeout(function () { toast.style.display = 'none'; }, 10000);
         }
 
         function handleIncomingDemoParams() {
@@ -396,21 +534,24 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             }
 
             if (params.get('demo') === 'upload_done') {
-                var row = document.querySelector('.tablebodyrows tr');
-                if (row) {
-                    row.classList.add('adp-highlight-row');
-                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                var filePath = params.get('file');
+                var html = t('toast.uploadSuccess');
+                if (filePath) {
+                    html += ' <a href="' + filePath + '" target="_blank">' + t('toast.viewFileLink') + ' \u2192</a>';
                 }
-                showToast('Upload succeeded: the .php proof-of-concept was accepted with no type check. Click "View File" on the highlighted row above to watch it execute.');
+                showToast(html);
             }
         }
 
         document.addEventListener('DOMContentLoaded', handleIncomingDemoParams);
 
+        initLanguage();
+
         return {
             togglePanel: togglePanel,
             goRunSqli: goRunSqli,
             runUploadDemo: runUploadDemo,
+            setLanguage: setLanguage,
         };
     })();
 </script>

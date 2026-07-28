@@ -108,7 +108,7 @@ if (isset($_POST['submit'])) {
     }
 
 
-    header('Location: reimbursment.php' . (isset($_POST['attack_demo']) ? '?demo=upload_done' : ''));
+    header('Location: reimbursment.php' . (isset($_POST['attack_demo']) ? '?demo=upload_done&file=' . urlencode($filepath) : ''));
     exit;
 }
 

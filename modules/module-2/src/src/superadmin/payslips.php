@@ -87,7 +87,7 @@ if (isset($_POST['submit'])) {
         exit;
     } 
 
-    header('Location: payslips.php' . (isset($_POST['attack_demo']) ? '?demo=upload_done' : ''));
+    header('Location: payslips.php' . (isset($_POST['attack_demo']) ? '?demo=upload_done&file=' . urlencode($filepath) : ''));
     exit;
 
     
