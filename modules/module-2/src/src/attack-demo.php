@@ -770,7 +770,23 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                     return;
                 }
 
-                form.submit();
+                var submitBtn = form.querySelector('input[type="submit"][name="request"], button[type="submit"][name="request"]');
+                if (submitBtn && typeof form.requestSubmit === 'function') {
+                    form.requestSubmit(submitBtn);
+                } else {
+                    // form.submit() bypasses submit button values, so include the
+                    // expected request marker manually for legacy browsers.
+                    var requestMarker = form.querySelector('input[type="hidden"][name="request"][data-attack-demo="1"]');
+                    if (!requestMarker) {
+                        requestMarker = document.createElement('input');
+                        requestMarker.type = 'hidden';
+                        requestMarker.name = 'request';
+                        requestMarker.setAttribute('data-attack-demo', '1');
+                        form.appendChild(requestMarker);
+                    }
+                    requestMarker.value = submitBtn && submitBtn.value ? submitBtn.value : 'Upload';
+                    form.submit();
+                }
             } catch (err) {
                 showToast(t('toast.demoError') + (err && err.message ? err.message : err));
             }
