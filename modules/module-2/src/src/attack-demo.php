@@ -360,12 +360,28 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
     @media (max-width: 991.98px) {
         #adp-mobile-nav-toggle { display: inline-block; }
         #sidebarMenu.collapse:not(.show) { display: block !important; }
+        #sidebarMenu {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            height: calc(100dvh - 70px);
+            z-index: 50;
+        }
         #sidebarMenu .navlinks {
+            top: 0;
+            bottom: auto;
+            height: 100%;
+            width: min(84vw, 320px) !important;
+            overflow-y: auto;
+            pointer-events: none;
             transform: translateX(-105%);
             transition: transform 0.25s ease;
             z-index: 50;
         }
-        #sidebarMenu.show .navlinks { transform: translateX(0); }
+        #sidebarMenu.show .navlinks {
+            transform: translateX(0);
+            pointer-events: auto;
+        }
     }
 
     /* Mobile-friendly attack demo panel: a bottom sheet with a backdrop,
@@ -430,13 +446,22 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             bottom: 18px;
             right: 14px;
             padding: 12px 16px;
-            font-size: 14px;
+            font-size: 13px;
+            max-width: 46vw;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
         #defense-demo-toggle {
-            bottom: 18px;
-            left: 14px;
+            bottom: 74px;
+            right: 14px;
+            left: auto;
             padding: 12px 16px;
-            font-size: 14px;
+            font-size: 13px;
+            max-width: 46vw;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
         #attack-demo-panel .adp-close {
             font-size: 26px;
@@ -838,12 +863,18 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             }
         }
 
-        function initSwipeToClose() {
-            var panel = document.getElementById('attack-demo-panel');
+        function initSwipeToClosePanel(panelId) {
+            var panel = document.getElementById(panelId);
+            if (!panel) return;
             var handle = panel.querySelector('.adp-drag-handle');
             var header = panel.querySelector('.adp-header');
             var targets = [handle, header].filter(Boolean);
             var startY = null;
+
+            function closePanelById() {
+                if (panelId === 'defense-demo-panel') closeDefensePanel();
+                else closePanel();
+            }
 
             targets.forEach(function (el) {
                 el.addEventListener('touchstart', function (e) {
@@ -860,7 +891,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                     panel.style.transition = '';
                     panel.style.transform = '';
                     startY = null;
-                    if (delta > 90) closePanel();
+                    if (delta > 90) closePanelById();
                 });
             });
         }
@@ -1156,7 +1187,8 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
 
         initLanguage();
         initMobileNav();
-        initSwipeToClose();
+        initSwipeToClosePanel('attack-demo-panel');
+        initSwipeToClosePanel('defense-demo-panel');
 
         return {
             togglePanel: togglePanel,

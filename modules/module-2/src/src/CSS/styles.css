@@ -15,15 +15,41 @@
    hamburger toggle for it), so the content wrappers need to reclaim that
    space and go full-width instead of leaving a blank 300px gutter. */
 @media (max-width: 991.98px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  .navbar {
+    min-height: 70px;
+    height: auto;
+  }
+
+  .navbar .container-fluid.navbar-bundle {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   .homewrapper,
   .payslipswrapper,
   .leaveapplicationwrapper,
   .reimbursmentwrapper,
   .usersettingswrapper,
   .complaintswrapper {
-    margin-left: 0;
-    margin-top: 90px;
+    margin-left: 0 !important;
+    margin-top: 84px;
     padding: 0 14px;
+  }
+
+  #homepage,
+  #payslippage,
+  #leaveapplicationpage,
+  #reimbursmentpage,
+  #usersettingspage,
+  #complaintspage {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .leaveapplicationwrapper .container,
@@ -32,6 +58,34 @@
   .complaintswrapper .container {
     margin-right: 0;
     width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  #payslippage .container[style],
+  #leaveapplicationpage .container[style],
+  #reimbursmentpage .container[style],
+  #usersettingspage .container[style],
+  #complaintspage .container[style] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .homewrapper .row,
+  .payslipswrapper .row,
+  .leaveapplicationwrapper .row,
+  .reimbursmentwrapper .row,
+  .usersettingswrapper .row,
+  .complaintswrapper .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .homewrapper .greetingstext {
+    margin-left: 0 !important;
+  }
+  .homewrapper .card {
+    height: auto;
+    min-height: 220px;
   }
 
   .leaveapplicationwrapper .container .nav-tabs,
@@ -58,11 +112,55 @@
   }
   .payslipswrapper .card {
     margin-right: 0;
+    margin-bottom: 12px;
+  }
+  .payslipswrapper .card .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .payslipswrapper .card dt,
+  .payslipswrapper .card dd {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .payslipswrapper .card dd {
+    margin-bottom: 8px;
+  }
+  .payslipswrapper .card dd:last-child {
+    margin-bottom: 0;
+  }
+
+  .myform {
+    margin-right: 0 !important;
+  }
+
+  .profilewrapper .modal-footer button,
+  .settingswrapper .modal-footer button {
+    width: 100%;
+    height: auto;
+    padding: 10px 14px;
+    font-size: 1rem;
+  }
+
+  footer {
+    display: none;
   }
 
   .navbar-brand img {
     height: 30px !important;
     width: auto !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .homewrapper,
+  .payslipswrapper,
+  .leaveapplicationwrapper,
+  .reimbursmentwrapper,
+  .usersettingswrapper,
+  .complaintswrapper {
+    margin-top: 78px;
+    padding: 0 10px;
   }
 }
 
