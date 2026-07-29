@@ -47,6 +47,23 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
     }
     #attack-demo-toggle:hover { background: #991b1b; }
 
+    #defense-demo-toggle {
+        position: fixed;
+        bottom: 24px;
+        left: 24px;
+        z-index: 99998;
+        background: #1d4ed8;
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 14px 20px;
+        font-weight: 700;
+        font-size: 15px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        cursor: pointer;
+    }
+    #defense-demo-toggle:hover { background: #1e40af; }
+
     #attack-demo-panel {
         position: fixed;
         top: 0;
@@ -64,6 +81,23 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
     }
     #attack-demo-panel.open { right: 0; }
 
+    #defense-demo-panel {
+        position: fixed;
+        top: 0;
+        left: -420px;
+        width: 400px;
+        max-width: 92vw;
+        height: 100%;
+        background: #0f172a;
+        color: #e5e7eb;
+        z-index: 99999;
+        box-shadow: 8px 0 24px rgba(0, 0, 0, 0.5);
+        transition: left 0.25s ease;
+        overflow-y: auto;
+        font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    #defense-demo-panel.open { left: 0; }
+
     #attack-demo-panel .adp-header {
         padding: 18px 20px;
         background: #b91c1c;
@@ -75,6 +109,17 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         gap: 10px;
     }
     #attack-demo-panel .adp-header h2 { margin: 0; font-size: 17px; }
+    #defense-demo-panel .adp-header {
+        padding: 18px 20px;
+        background: #1d4ed8;
+        position: sticky;
+        top: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+    #defense-demo-panel .adp-header h2 { margin: 0; font-size: 17px; }
     #attack-demo-panel .adp-header-right {
         display: flex;
         align-items: center;
@@ -109,6 +154,14 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         cursor: pointer;
         line-height: 1;
     }
+    #defense-demo-panel .adp-close {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 22px;
+        cursor: pointer;
+        line-height: 1;
+    }
     #attack-demo-panel .adp-card {
         margin: 16px;
         padding: 14px 16px;
@@ -116,7 +169,18 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         border-radius: 10px;
         border: 1px solid #3a3a3a;
     }
+    #defense-demo-panel .adp-card {
+        margin: 16px;
+        padding: 14px 16px;
+        background: #111827;
+        border-radius: 10px;
+        border: 1px solid #334155;
+    }
     #attack-demo-panel .adp-card h3 {
+        margin: 0 0 4px;
+        font-size: 15px;
+    }
+    #defense-demo-panel .adp-card h3 {
         margin: 0 0 4px;
         font-size: 15px;
     }
@@ -131,16 +195,34 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
     }
     #attack-demo-panel .adp-badge.live { background: #16a34a; color: #04220f; }
     #attack-demo-panel .adp-badge.explainer { background: #4b5563; color: #f3f4f6; }
+    #defense-demo-panel .adp-badge.live { background: #22c55e; color: #052e16; }
+    #defense-demo-panel .adp-badge.explainer { background: #334155; color: #e2e8f0; }
     #attack-demo-panel p.adp-desc {
         font-size: 13px;
         line-height: 1.45;
         color: #cfcfcf;
         margin: 6px 0 10px;
     }
+    #defense-demo-panel p.adp-desc {
+        font-size: 13px;
+        line-height: 1.45;
+        color: #cbd5e1;
+        margin: 6px 0 10px;
+    }
     #attack-demo-panel code.adp-payload {
         display: block;
         background: #111;
         color: #7ee787;
+        padding: 6px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        margin: 4px 0 10px;
+        word-break: break-all;
+    }
+    #defense-demo-panel code.adp-payload {
+        display: block;
+        background: #020617;
+        color: #93c5fd;
         padding: 6px 8px;
         border-radius: 6px;
         font-size: 12px;
@@ -161,13 +243,36 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         text-decoration: none;
     }
     #attack-demo-panel .adp-btn:hover { background: #b91c1c; }
+    #defense-demo-panel .adp-btn {
+        display: inline-block;
+        background: #2563eb;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 3px 4px 3px 0;
+        text-decoration: none;
+    }
+    #defense-demo-panel .adp-btn:hover { background: #1d4ed8; }
     #attack-demo-panel .adp-btn.secondary {
         background: #374151;
     }
     #attack-demo-panel .adp-btn.secondary:hover { background: #1f2937; }
+    #defense-demo-panel .adp-btn.secondary {
+        background: #334155;
+    }
+    #defense-demo-panel .adp-btn.secondary:hover { background: #1e293b; }
     #attack-demo-panel .adp-note {
         font-size: 12px;
         color: #9ca3af;
+        margin-top: 6px;
+    }
+    #defense-demo-panel .adp-note {
+        font-size: 12px;
+        color: #94a3b8;
         margin-top: 6px;
     }
     #attack-demo-panel details summary {
@@ -259,6 +364,14 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         display: none;
     }
     #attack-demo-backdrop.open { display: block; }
+    #defense-demo-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.55);
+        z-index: 99997;
+        display: none;
+    }
+    #defense-demo-backdrop.open { display: block; }
 
     @media (max-width: 600px) {
         #attack-demo-panel {
@@ -275,10 +388,30 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             transition: transform 0.28s ease;
         }
         #attack-demo-panel.open { transform: translateY(0); }
+        #defense-demo-panel {
+            top: auto;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 100%;
+            height: 88vh;
+            max-height: 88vh;
+            border-radius: 16px 16px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.28s ease;
+        }
+        #defense-demo-panel.open { transform: translateY(0); }
         #attack-demo-panel .adp-drag-handle { display: block; }
         #attack-demo-toggle {
             bottom: 18px;
             right: 14px;
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+        #defense-demo-toggle {
+            bottom: 18px;
+            left: 14px;
             padding: 12px 16px;
             font-size: 14px;
         }
@@ -288,10 +421,17 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             min-width: 44px;
             min-height: 44px;
         }
+        #defense-demo-panel .adp-close {
+            font-size: 26px;
+            padding: 8px 10px;
+            min-width: 44px;
+            min-height: 44px;
+        }
     }
 </style>
 
 <button id="attack-demo-toggle" type="button" onclick="AttackDemo.togglePanel()" data-i18n="toggle.label">⚔ Attack Demos</button>
+<button id="defense-demo-toggle" type="button" onclick="AttackDemo.toggleDefensePanel()" data-i18n="defense.toggle.label">🛡 Defense Demos</button>
 
 <div id="attack-demo-panel">
     <div class="adp-drag-handle" aria-hidden="true"></div>
@@ -410,7 +550,35 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
     </div>
 </div>
 
+<div id="defense-demo-panel">
+    <div class="adp-header">
+        <h2 data-i18n="defense.panel.title">🛡 Blue Team Runtime Defense</h2>
+        <div class="adp-header-right">
+            <button class="adp-close" type="button" onclick="AttackDemo.toggleDefensePanel()">&times;</button>
+        </div>
+    </div>
+
+    <div class="adp-card">
+        <span class="adp-badge live" data-i18n="badge.live">LIVE DEMO</span>
+        <h3 data-i18n="defense.c1.title">1. Kernel Blocking (Tetragon)</h3>
+        <p class="adp-desc" data-i18n-html="defense.c1.desc">This is the blue-team side of the same scenario: malicious syscalls are blocked in-kernel while the app keeps serving users.</p>
+        <code class="adp-payload" data-i18n="defense.c1.cmd1">./modules/module-2/runtime-defense-live-check.sh</code>
+        <button class="adp-btn secondary" type="button" onclick="AttackDemo.copyDefenseCommand('./modules/module-2/runtime-defense-live-check.sh')" data-i18n="defense.copyBtn">Copy Command</button>
+        <p class="adp-note" data-i18n="defense.c1.note">Run from your local repo terminal before going live.</p>
+    </div>
+
+    <div class="adp-card">
+        <span class="adp-badge explainer" data-i18n="badge.explainer">EXPLAINER ONLY</span>
+        <h3 data-i18n="defense.c2.title">2. Live Talk Flow (Blue Terminal)</h3>
+        <p class="adp-desc" data-i18n="defense.c2.desc">Keep one terminal streaming Tetragon events while the red-team actions run.</p>
+        <code class="adp-payload">aws ssm start-session --target i-0f0d60766006a7901 --region us-east-1</code>
+        <code class="adp-payload">sudo docker exec -it tetragon tetra getevents -o compact</code>
+        <p class="adp-note" data-i18n="defense.c2.note">When red-team triggers an attack, this terminal shows kernel-level enforcement in real time.</p>
+    </div>
+</div>
+
 <div id="attack-demo-backdrop" onclick="AttackDemo.closePanel()"></div>
+<div id="defense-demo-backdrop" onclick="AttackDemo.closeDefensePanel()"></div>
 
 <div id="attack-demo-toast"></div>
 
@@ -424,9 +592,19 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         var I18N = {
             en: {
                 'toggle.label': '⚔ Attack Demos',
+                'defense.toggle.label': '🛡 Defense Demos',
                 'panel.title': '⚔ AWSGoat Attack Demos',
+                'defense.panel.title': '🛡 Blue Team Runtime Defense',
                 'badge.live': 'LIVE DEMO',
                 'badge.explainer': 'EXPLAINER ONLY',
+                'defense.c1.title': '1. Kernel Blocking (Tetragon)',
+                'defense.c1.desc': 'This is the blue-team side of the same scenario: malicious syscalls are blocked in-kernel while the app keeps serving users.',
+                'defense.c1.cmd1': './modules/module-2/runtime-defense-live-check.sh',
+                'defense.copyBtn': 'Copy Command',
+                'defense.c1.note': 'Run from your local repo terminal before going live.',
+                'defense.c2.title': '2. Live Talk Flow (Blue Terminal)',
+                'defense.c2.desc': 'Keep one terminal streaming Tetragon events while the red-team actions run.',
+                'defense.c2.note': 'When red-team triggers an attack, this terminal shows kernel-level enforcement in real time.',
                 'c1.title': '1. SQL Injection \u2014 Login Bypass',
                 'c1.desc': 'The login query builds SQL by directly concatenating the <code>email</code> field. Ending the input with <code>#</code> comments out the password check, and <code>LIMIT</code>/<code>ORDER BY</code> control which account you\'re logged in as.',
                 'c1.btnBypass': 'Run: Bypass Login',
@@ -471,9 +649,19 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             },
             es: {
                 'toggle.label': '⚔ Demos de Ataques',
+                'defense.toggle.label': '🛡 Demos de Defensa',
                 'panel.title': '⚔ Demos de Ataques AWSGoat',
+                'defense.panel.title': '🛡 Defensa Blue Team en Runtime',
                 'badge.live': 'DEMO EN VIVO',
                 'badge.explainer': 'SOLO EXPLICACI\u00d3N',
+                'defense.c1.title': '1. Bloqueo a Nivel Kernel (Tetragon)',
+                'defense.c1.desc': 'Este es el lado blue-team del mismo escenario: las syscalls maliciosas se bloquean en el kernel mientras la app sigue atendiendo usuarios.',
+                'defense.c1.cmd1': './modules/module-2/runtime-defense-live-check.sh',
+                'defense.copyBtn': 'Copiar Comando',
+                'defense.c1.note': 'Ejecútalo desde tu terminal local del repo antes de salir en vivo.',
+                'defense.c2.title': '2. Flujo en Vivo (Terminal Blue)',
+                'defense.c2.desc': 'Mantén una terminal transmitiendo eventos de Tetragon mientras corren las acciones red-team.',
+                'defense.c2.note': 'Cuando red-team lance un ataque, esta terminal muestra la aplicación del kernel en tiempo real.',
                 'c1.title': '1. Inyecci\u00f3n SQL \u2014 Bypass de Login',
                 'c1.desc': 'La consulta de login construye el SQL concatenando directamente el campo <code>email</code>. Terminar la entrada con <code>#</code> comenta la verificaci\u00f3n de contrase\u00f1a, y <code>LIMIT</code>/<code>ORDER BY</code> controlan con qu\u00e9 cuenta inicias sesi\u00f3n.',
                 'c1.btnBypass': 'Ejecutar: Bypass de Login',
@@ -577,6 +765,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         }
 
         function openPanel() {
+            closeDefensePanel();
             document.getElementById('attack-demo-panel').classList.add('open');
             var backdrop = document.getElementById('attack-demo-backdrop');
             if (backdrop) backdrop.classList.add('open');
@@ -586,6 +775,40 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             document.getElementById('attack-demo-panel').classList.remove('open');
             var backdrop = document.getElementById('attack-demo-backdrop');
             if (backdrop) backdrop.classList.remove('open');
+        }
+
+        function toggleDefensePanel() {
+            var panel = document.getElementById('defense-demo-panel');
+            if (panel.classList.contains('open')) {
+                closeDefensePanel();
+            } else {
+                openDefensePanel();
+            }
+        }
+
+        function openDefensePanel() {
+            closePanel();
+            document.getElementById('defense-demo-panel').classList.add('open');
+            var backdrop = document.getElementById('defense-demo-backdrop');
+            if (backdrop) backdrop.classList.add('open');
+        }
+
+        function closeDefensePanel() {
+            document.getElementById('defense-demo-panel').classList.remove('open');
+            var backdrop = document.getElementById('defense-demo-backdrop');
+            if (backdrop) backdrop.classList.remove('open');
+        }
+
+        function copyDefenseCommand(cmd) {
+            try {
+                navigator.clipboard.writeText(cmd).then(function () {
+                    showToast('Copied: <code>' + cmd + '</code>');
+                }).catch(function () {
+                    showToast('Copy failed. Command: <code>' + cmd + '</code>');
+                });
+            } catch (err) {
+                showToast('Copy failed. Command: <code>' + cmd + '</code>');
+            }
         }
 
         function initSwipeToClose() {
@@ -861,6 +1084,9 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         return {
             togglePanel: togglePanel,
             closePanel: closePanel,
+            toggleDefensePanel: toggleDefensePanel,
+            closeDefensePanel: closeDefensePanel,
+            copyDefenseCommand: copyDefenseCommand,
             goRunSqli: goRunSqli,
             runUploadDemo: runUploadDemo,
             runSudoCheckDemo: runSudoCheckDemo,
