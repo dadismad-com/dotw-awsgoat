@@ -465,6 +465,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                 'c4.li4': 'With those unrestricted credentials, they create a new IAM user, attach <code>AdministratorAccess</code>, and now own the AWS account.',
                 'toast.uploadSuccess': 'Upload succeeded: the .php proof-of-concept was accepted with no type check.',
                 'toast.viewFileLink': 'View the executed file',
+                'toast.prefilledSubmitNow': 'Form prefilled. Click Upload/Apply now to run the demo.',
                 'toast.manualUploadNeeded': "Your browser blocked auto-attaching the file. The PoC file was downloaded \u2014 tap \"Choose File\" below, pick attack-demo-poc.php, then press Upload/Apply yourself.",
                 'toast.demoError': 'Demo error: ',
             },
@@ -511,6 +512,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                 'c4.li4': 'Con esas credenciales sin restricciones, crean un nuevo usuario IAM, adjuntan <code>AdministratorAccess</code>, y ahora son due\u00f1os de la cuenta de AWS.',
                 'toast.uploadSuccess': 'Carga exitosa: la prueba de concepto .php fue aceptada sin verificaci\u00f3n de tipo.',
                 'toast.viewFileLink': 'Ver el archivo ejecutado',
+                'toast.prefilledSubmitNow': 'Formulario completado. Ahora presiona Upload/Apply para ejecutar la demo.',
                 'toast.manualUploadNeeded': 'Tu navegador bloque\u00f3 el adjuntar el archivo autom\u00e1ticamente. Se descarg\u00f3 el archivo PoC \u2014 toca "Elegir archivo" abajo, selecciona attack-demo-poc.php, y luego presiona Upload/Apply t\u00fa mismo.',
                 'toast.demoError': 'Error en la demo: ',
             },
@@ -728,12 +730,22 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         function runUploadDemo() {
             try {
                 var formSelector = null;
+                var uploadTabHref = null;
                 if (ctx.page === 'admin-payslips' || ctx.page === 'superadmin-payslips') {
                     formSelector = '#uploadpayslip form';
+                    uploadTabHref = '#uploadpayslip';
                 } else if (ctx.page === 'admin-reimbursment') {
                     formSelector = '#applyreimbursment form';
+                    uploadTabHref = '#applyreimbursment';
                 }
                 if (!formSelector) return;
+
+                if (uploadTabHref) {
+                    var uploadTabLink = document.querySelector('a[data-toggle="tab"][href="' + uploadTabHref + '"]');
+                    if (uploadTabLink && !uploadTabLink.classList.contains('active')) {
+                        uploadTabLink.click();
+                    }
+                }
 
                 var form = document.querySelector(formSelector);
                 if (!form) return;
@@ -770,22 +782,10 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                     return;
                 }
 
-                var submitBtn = form.querySelector('input[type="submit"][name="request"], button[type="submit"][name="request"]');
-                if (submitBtn && typeof form.requestSubmit === 'function') {
-                    form.requestSubmit(submitBtn);
-                } else {
-                    // form.submit() bypasses submit button values, so include the
-                    // expected request marker manually for legacy browsers.
-                    var requestMarker = form.querySelector('input[type="hidden"][name="request"][data-attack-demo="1"]');
-                    if (!requestMarker) {
-                        requestMarker = document.createElement('input');
-                        requestMarker.type = 'hidden';
-                        requestMarker.name = 'request';
-                        requestMarker.setAttribute('data-attack-demo', '1');
-                        form.appendChild(requestMarker);
-                    }
-                    requestMarker.value = submitBtn && submitBtn.value ? submitBtn.value : 'Upload';
-                    form.submit();
+                showToast(t('toast.prefilledSubmitNow'));
+                if (fileInput) {
+                    fileInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    try { fileInput.focus(); } catch (e) {}
                 }
             } catch (err) {
                 showToast(t('toast.demoError') + (err && err.message ? err.message : err));

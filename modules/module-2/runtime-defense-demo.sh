@@ -66,6 +66,15 @@
 # app side since nothing malicious ever actually ran):
 #   sudo docker exec tetragon tetra tracingpolicy list
 #
+# QUICK PRE-FLIGHT (from your laptop): run the automated blue-team readiness
+# check before going on stage:
+#   ./runtime-defense-live-check.sh
+# This validates:
+#   - public app endpoint is still HTTP 200
+#   - reverse-shell path is blocked
+#   - ptrace breakout path is blocked
+#   - app remains HTTP 200 after both attack simulations
+#
 # ---------------------------------------------------------------------------
 # TEARDOWN (run from your laptop, after the talk - this instance/SG are NOT
 # part of the Terraform state, so `terraform destroy` of module-2 will force
