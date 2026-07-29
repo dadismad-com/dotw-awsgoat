@@ -17,6 +17,17 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+data "aws_route53_zone" "custom_zone" {
+  count        = var.enable_custom_domain ? 1 : 0
+  name         = var.hosted_zone_name
+  private_zone = false
+}
+
+locals {
+  zone_root         = trimsuffix(var.hosted_zone_name, ".")
+  blue_record_names = var.enable_custom_domain && var.create_blue_dns_records && var.blue_host_ip != "" ? toset(var.blue_subdomains) : toset([])
+}
+
 # VPC Config for public access
 resource "aws_vpc" "lab-vpc" {
   cidr_block           = "10.0.0.0/16"
@@ -153,6 +164,12 @@ resource "aws_security_group" "load_balancer_security_group" {
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -465,6 +482,80 @@ resource "aws_lb_listener" "listener" {
   }
 }
 
+resource "aws_acm_certificate" "app_cert" {
+  count             = var.enable_custom_domain ? 1 : 0
+  domain_name       = var.app_domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "app_cert_validation" {
+  for_each = var.enable_custom_domain ? {
+    for dvo in aws_acm_certificate.app_cert[0].domain_validation_options :
+    dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  } : {}
+
+  allow_overwrite = true
+  zone_id         = data.aws_route53_zone.custom_zone[0].zone_id
+  name            = each.value.name
+  type            = each.value.type
+  ttl             = 60
+  records         = [each.value.record]
+}
+
+resource "aws_acm_certificate_validation" "app_cert" {
+  count                   = var.enable_custom_domain ? 1 : 0
+  certificate_arn         = aws_acm_certificate.app_cert[0].arn
+  validation_record_fqdns = [for record in aws_route53_record.app_cert_validation : record.fqdn]
+}
+
+resource "aws_lb_listener" "https_listener" {
+  count             = var.enable_custom_domain ? 1 : 0
+  load_balancer_arn = aws_alb.application_load_balancer.id
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate_validation.app_cert[0].certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.target_group.id
+  }
+}
+
+resource "aws_route53_record" "app_alias" {
+  count = var.enable_custom_domain ? 1 : 0
+
+  zone_id         = data.aws_route53_zone.custom_zone[0].zone_id
+  name            = var.app_domain_name
+  type            = "A"
+  allow_overwrite = true
+
+  alias {
+    name                   = aws_alb.application_load_balancer.dns_name
+    zone_id                = aws_alb.application_load_balancer.zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "blue_host_records" {
+  for_each = local.blue_record_names
+
+  zone_id         = data.aws_route53_zone.custom_zone[0].zone_id
+  name            = "${each.value}.${local.zone_root}"
+  type            = "A"
+  ttl             = 60
+  allow_overwrite = true
+  records         = [var.blue_host_ip]
+}
+
 
 resource "aws_secretsmanager_secret" "rds_creds" {
   name                    = "RDS_CREDS"
@@ -523,5 +614,9 @@ resource "aws_s3_bucket" "bucket_tf_files" {
 }
 
 output "ad_Target_URL" {
-  value = "${aws_alb.application_load_balancer.dns_name}:80/login.php"
+  value = var.enable_custom_domain ? "https://${var.app_domain_name}/login.php" : "${aws_alb.application_load_balancer.dns_name}:80/login.php"
+}
+
+output "blue_Target_URL" {
+  value = var.enable_custom_domain && var.create_blue_dns_records && var.blue_host_ip != "" ? "http://defense.${local.zone_root}/login.php" : "http://${var.blue_host_ip}/login.php"
 }

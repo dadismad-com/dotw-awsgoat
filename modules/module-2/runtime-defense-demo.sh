@@ -23,6 +23,20 @@
 # rather than expecting this instance to survive.
 #
 # ---------------------------------------------------------------------------
+# HOST LIFECYCLE (build / status / destroy) from your laptop:
+#   cd modules/module-2
+#   ./runtime-defense-host-manager.sh build
+#   ./runtime-defense-host-manager.sh status
+#   ./runtime-defense-host-manager.sh destroy
+#
+# Notes:
+# - `build` provisions (or reuses) the blue-team host, deploys awsgoat-app +
+#   tetragon, and applies enforcing policies.
+# - By default, `build` also allocates/associates a tagged Elastic IP for a
+#   stable endpoint. Use `./runtime-defense-host-manager.sh build --no-eip` to
+#   skip that behavior.
+#
+# ---------------------------------------------------------------------------
 # STAGE SETUP (do this before the talk, not live):
 #   1. Open TWO terminals, in each run:
 #        aws ssm start-session --target i-0f0d60766006a7901 --region us-east-1

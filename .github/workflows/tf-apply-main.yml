@@ -11,6 +11,31 @@ on:
         - module-1
         - module-2
         required: true
+      enable_custom_domain:
+        description: "Module-2 only: manage ACM + Route53 + ALB HTTPS"
+        type: string
+        required: false
+        default: "true"
+      hosted_zone_name:
+        description: "Module-2 only: Route53 hosted zone name"
+        type: string
+        required: false
+        default: "nocontrol.dev."
+      app_domain_name:
+        description: "Module-2 only: app custom domain"
+        type: string
+        required: false
+        default: "awsgoat.nocontrol.dev"
+      create_blue_dns_records:
+        description: "Module-2 only: create defense/blue DNS A records"
+        type: string
+        required: false
+        default: "true"
+      blue_host_ip:
+        description: "Module-2 only: blue-team host public IP"
+        type: string
+        required: false
+        default: "44.194.67.73"
 
 permissions: write-all
 
@@ -23,6 +48,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: "us-east-1"
+      TERRAFORM_VAR_ARGS: ""
 
     defaults:
       run:
@@ -60,6 +86,11 @@ jobs:
       run: | 
         cd modules/${{ github.event.inputs.module }}
         terraform init 
+
+    - name: Build module-2 Terraform var args
+      if: github.event.inputs.module == 'module-2'
+      run: |
+        echo "TERRAFORM_VAR_ARGS=-var=enable_custom_domain=${{ github.event.inputs.enable_custom_domain }} -var=hosted_zone_name=${{ github.event.inputs.hosted_zone_name }} -var=app_domain_name=${{ github.event.inputs.app_domain_name }} -var=create_blue_dns_records=${{ github.event.inputs.create_blue_dns_records }} -var=blue_host_ip=${{ github.event.inputs.blue_host_ip }}" >> $GITHUB_ENV
         
     # Installs boto3
     - uses: actions/setup-python@v5
@@ -73,7 +104,7 @@ jobs:
       id: plan 
       run: | 
         cd modules/${{ github.event.inputs.module }}
-        terraform plan -input=false
+        terraform plan -input=false ${TERRAFORM_VAR_ARGS}
       continue-on-error: false
       
     - name: Terraform Plan Status
@@ -83,7 +114,7 @@ jobs:
     - name: Terraform Apply
       run: | 
         cd modules/${{ github.event.inputs.module }}
-        terraform apply -auto-approve -input=false
+        terraform apply -auto-approve -input=false ${TERRAFORM_VAR_ARGS}
       continue-on-error: false
 
     # Copy tfstate file to s3 bucket

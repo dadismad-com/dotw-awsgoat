@@ -42,20 +42,42 @@ jobs:
       run: |
         echo "ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_ENV
 
-    # Copy and delete terraform.tfstate files from s3 bucket
+    - name: Check tfstate exists
+      id: state
+      run: |
+        if aws s3api head-object --bucket do-not-delete-awsgoat-state-files-${{ env.ACCOUNT_ID }} --key terraform.tfstate >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    # Copy tfstate file from s3 bucket
     - name: Retrieve tfstate
+      if: steps.state.outputs.exists == 'true'
       run: |
         cd modules/${{ github.event.inputs.module }}
         aws s3 cp s3://do-not-delete-awsgoat-state-files-${{ env.ACCOUNT_ID }}/terraform.tfstate ./terraform.tfstate
 
     # Initialize a new Terraform working directory
     - name: Terraform Init
+      if: steps.state.outputs.exists == 'true'
       run: |
         cd modules/${{ github.event.inputs.module }}
         terraform init
     
     - name: Terraform Destroy
+      if: steps.state.outputs.exists == 'true'
       run: |
         cd modules/${{ github.event.inputs.module }}
         terraform destroy -auto-approve -input=false
       continue-on-error: false
+
+    - name: Remove tfstate object from S3
+      if: always() && steps.state.outputs.exists == 'true'
+      run: |
+        aws s3 rm s3://do-not-delete-awsgoat-state-files-${{ env.ACCOUNT_ID }}/terraform.tfstate || true
+
+    - name: Nothing to destroy
+      if: steps.state.outputs.exists == 'false'
+      run: |
+        echo "No terraform.tfstate found in S3 bucket; nothing to destroy."

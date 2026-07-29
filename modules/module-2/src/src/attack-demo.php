@@ -270,6 +270,29 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         color: #9ca3af;
         margin-top: 6px;
     }
+    /* Improve readability for the ECS breakout card guidance + sudo output. */
+    #attack-demo-panel .adp-note.c3-readable {
+        font-size: 13px;
+        line-height: 1.55;
+        color: #e5e7eb;
+        background: #1f2937;
+        border-left: 3px solid #60a5fa;
+        border-radius: 6px;
+        padding: 9px 10px;
+    }
+    #adp-sudo-check-result {
+        background: #030712 !important;
+        color: #f8fafc !important;
+        border: 1px solid #334155;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 12.5px;
+        line-height: 1.45;
+        max-height: 240px;
+        overflow: auto;
+        white-space: pre-wrap !important;
+        word-break: break-word;
+    }
     #defense-demo-panel .adp-note {
         font-size: 12px;
         color: #94a3b8;
@@ -421,6 +444,10 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             min-width: 44px;
             min-height: 44px;
         }
+        #adp-sudo-check-result {
+            max-height: 190px;
+            font-size: 12px;
+        }
         #defense-demo-panel .adp-close {
             font-size: 26px;
             padding: 8px 10px;
@@ -505,9 +532,9 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             actually exists instead of just describing it.
         </p>
         <button class="adp-btn" type="button" data-i18n="c3.btnSudoCheck" onclick="AttackDemo.runSudoCheckDemo()">Run: Check sudo Misconfiguration</button>
-        <p class="adp-note" data-i18n="c3.noteNeedsUpload">Run the file upload demo above first (attack #2) so there's an uploaded PHP file to check this from.</p>
+        <p class="adp-note c3-readable" data-i18n="c3.noteNeedsUpload">Run the file upload demo above first (attack #2) so there's an uploaded PHP file to check this from.</p>
         <pre class="adp-payload" id="adp-sudo-check-result" style="display:none; white-space: pre-wrap;"></pre>
-        <p class="adp-note" data-i18n-html="c3.beyondNote">Everything below is real and exploitable on this container, but intentionally stops here: continuing would spawn an actual root shell, break out to the host, and expose real, temporary AWS credentials for this EC2 instance to whoever clicked the button.</p>
+        <p class="adp-note c3-readable" data-i18n-html="c3.beyondNote">Everything below is real and exploitable on this container, but intentionally stops here: continuing would spawn an actual root shell, break out to the host, and expose real, temporary AWS credentials for this EC2 instance to whoever clicked the button.</p>
         <details>
             <summary data-i18n="howItWorks.summary">How it works</summary>
             <ol>
@@ -1022,11 +1049,32 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             setTimeout(function () { toast.style.display = 'none'; }, 10000);
         }
 
+        function normalizeUploadPath(rawPath) {
+            if (!rawPath) return '';
+            var p = String(rawPath).trim();
+
+            // Legacy value bug: protocol-relative style ("//documents/...") can
+            // accidentally resolve to a different host. Force local absolute path.
+            if (p.indexOf('//') === 0) {
+                p = '/' + p.replace(/^\/+/, '');
+            }
+
+            // If a full URL was stored, keep only its pathname/query/hash.
+            if (/^https?:\/\//i.test(p)) {
+                try {
+                    var u = new URL(p);
+                    p = u.pathname + (u.search || '') + (u.hash || '');
+                } catch (e) {}
+            }
+            return p;
+        }
+
         function runSudoCheckDemo() {
             var resultEl = document.getElementById('adp-sudo-check-result');
             try {
                 var path = null;
                 try { path = localStorage.getItem('attackDemoLastUpload'); } catch (e) {}
+                path = normalizeUploadPath(path);
                 if (!path) {
                     showToast(t('toast.sudoCheckNeedsUpload'));
                     return;
@@ -1035,15 +1083,44 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                     resultEl.style.display = 'block';
                     resultEl.textContent = '...';
                 }
-                fetch(path + '?attack_action=sudo_check')
-                    .then(function (r) { return r.text(); })
-                    .then(function (text) {
-                        if (resultEl) resultEl.textContent = text;
-                    })
-                    .catch(function (err) {
-                        if (resultEl) resultEl.style.display = 'none';
-                        showToast(t('toast.demoError') + (err && err.message ? err.message : err));
-                    });
+
+                var candidates = [];
+                function addCandidate(url) {
+                    if (!url || candidates.indexOf(url) !== -1) return;
+                    candidates.push(url);
+                }
+
+                // Keep legacy/stored value for backward compatibility.
+                addCandidate(path + (path.indexOf('?') >= 0 ? '&' : '?') + 'attack_action=sudo_check');
+                // Normalize against current URL and origin in case relative paths changed.
+                try {
+                    var hrefUrl = new URL(path, window.location.href).toString();
+                    addCandidate(hrefUrl + (hrefUrl.indexOf('?') >= 0 ? '&' : '?') + 'attack_action=sudo_check');
+                } catch (e) {}
+                try {
+                    var originUrl = new URL(path, window.location.origin).toString();
+                    addCandidate(originUrl + (originUrl.indexOf('?') >= 0 ? '&' : '?') + 'attack_action=sudo_check');
+                } catch (e) {}
+
+                function tryFetchAt(idx) {
+                    if (idx >= candidates.length) {
+                        if (resultEl) {
+                            resultEl.textContent = 'Automatic fetch failed. Open this URL directly in a new tab and rerun:\n' + candidates[0];
+                        }
+                        showToast(t('toast.demoError') + 'Failed to fetch. Try opening the uploaded file URL directly first.');
+                        return;
+                    }
+                    fetch(candidates[idx], { cache: 'no-store', credentials: 'same-origin' })
+                        .then(function (r) { return r.text(); })
+                        .then(function (text) {
+                            if (resultEl) resultEl.textContent = text;
+                        })
+                        .catch(function () {
+                            tryFetchAt(idx + 1);
+                        });
+                }
+
+                tryFetchAt(0);
             } catch (err) {
                 if (resultEl) resultEl.style.display = 'none';
                 showToast(t('toast.demoError') + (err && err.message ? err.message : err));
@@ -1067,7 +1144,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
                 if (filePath) {
                     html += ' <a href="' + filePath + '" target="_blank">' + t('toast.viewFileLink') + ' \u2192</a>';
                     try {
-                        var absolutePath = new URL(filePath, window.location.href).pathname;
+                        var absolutePath = normalizeUploadPath(new URL(filePath, window.location.href).pathname);
                         localStorage.setItem('attackDemoLastUpload', absolutePath);
                     } catch (e) {}
                 }
