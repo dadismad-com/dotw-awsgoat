@@ -29,6 +29,49 @@
     padding-left: 10px;
     padding-right: 10px;
   }
+  .nav-flex-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .navbar-brand {
+    padding: 0.25rem 0.35rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .navbar-brand img {
+    display: block;
+    flex-shrink: 0;
+  }
+  .navbar .navbar-toggler {
+    border: 1px solid rgba(0, 48, 99, 0.35);
+    border-radius: 8px;
+    padding: 6px 8px;
+    background: rgba(255, 255, 255, 0.45);
+  }
+  .navbar .navbar-toggler:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  .navbar .navbar-toggler-icon {
+    display: inline-block;
+    width: 1.3em;
+    height: 1.3em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,48,99,0.85)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+  }
+  .navbar .navbar-collapse {
+    margin-top: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(144, 214, 240, 0.95);
+  }
 
   .homewrapper,
   .payslipswrapper,
@@ -153,6 +196,14 @@
 }
 
 @media (max-width: 600px) {
+  .navbar-brand img:first-child {
+    height: 26px !important;
+  }
+  .navbar-brand img:last-child {
+    max-width: 92px;
+    height: auto !important;
+    width: auto !important;
+  }
   .homewrapper,
   .payslipswrapper,
   .leaveapplicationwrapper,

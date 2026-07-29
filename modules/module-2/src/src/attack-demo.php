@@ -332,10 +332,11 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
        fixed sidebar nav, which has no way to open on small screens otherwise. */
     #adp-mobile-nav-toggle {
         display: none;
-        background: transparent;
-        border: none;
-        padding: 8px;
-        margin-right: 6px;
+        background: rgba(255, 255, 255, 0.45);
+        border: 1px solid rgba(0, 48, 99, 0.35);
+        border-radius: 8px;
+        padding: 6px 8px;
+        margin-right: 4px;
         cursor: pointer;
         vertical-align: middle;
     }
