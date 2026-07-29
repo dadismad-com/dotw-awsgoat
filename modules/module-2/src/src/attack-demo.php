@@ -819,6 +819,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
 
         function openPanel() {
             closeDefensePanel();
+            closeMobileSidebar();
             document.getElementById('attack-demo-panel').classList.add('open');
             var backdrop = document.getElementById('attack-demo-backdrop');
             if (backdrop) backdrop.classList.add('open');
@@ -841,6 +842,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
 
         function openDefensePanel() {
             closePanel();
+            closeMobileSidebar();
             document.getElementById('defense-demo-panel').classList.add('open');
             var backdrop = document.getElementById('defense-demo-backdrop');
             if (backdrop) backdrop.classList.add('open');
@@ -850,6 +852,15 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             document.getElementById('defense-demo-panel').classList.remove('open');
             var backdrop = document.getElementById('defense-demo-backdrop');
             if (backdrop) backdrop.classList.remove('open');
+        }
+
+        function closeMobileSidebar() {
+            var sidebar = document.getElementById('sidebarMenu');
+            if (sidebar) sidebar.classList.remove('show');
+            var backdrop = document.getElementById('adp-mobile-nav-backdrop');
+            if (backdrop) backdrop.classList.remove('open');
+            var toggle = document.getElementById('adp-mobile-nav-toggle');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
         }
 
         function copyDefenseCommand(cmd) {
@@ -914,11 +925,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             backdrop.id = 'adp-mobile-nav-backdrop';
             document.body.appendChild(backdrop);
 
-            function closeSidebar() {
-                sidebar.classList.remove('show');
-                backdrop.classList.remove('open');
-                toggle.setAttribute('aria-expanded', 'false');
-            }
+            function closeSidebar() { closeMobileSidebar(); }
             function openSidebar() {
                 sidebar.classList.add('show');
                 backdrop.classList.add('open');
