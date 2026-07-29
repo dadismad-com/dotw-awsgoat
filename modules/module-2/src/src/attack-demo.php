@@ -759,7 +759,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
             },
         };
 
-        var currentLang = 'en';
+        var currentLang = 'es';
 
         function t(key) {
             var dict = I18N[currentLang] || I18N.en;
@@ -786,7 +786,7 @@ $attackDemoRole = isset($_SESSION['isadmin']) ? (int) $_SESSION['isadmin'] : nul
         function initLanguage() {
             var saved = null;
             try { saved = localStorage.getItem('attackDemoLang'); } catch (e) {}
-            var initial = saved || ((navigator.language || '').toLowerCase().indexOf('es') === 0 ? 'es' : 'en');
+            var initial = saved || 'es';
             setLanguage(initial);
         }
 
